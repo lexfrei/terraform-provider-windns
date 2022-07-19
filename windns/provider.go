@@ -1,49 +1,48 @@
 package windns
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
-
 	"fmt"
-	"os"
 	"io/ioutil"
+	"os"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Provider allows making changes to Windows DNS server
 // Utilises Powershell to connect to domain controller
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("USERNAME", nil),
 				Description: "Username to connect to AD.",
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PASSWORD", nil),
 				Description: "The password to connect to AD.",
 			},
-			"server": &schema.Schema{
+			"server": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SERVER", nil),
 				Description: "The AD server to connect to.",
 			},
-			"usessl": &schema.Schema{
+			"usessl": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("USESSL", false),
 				Description: "Whether or not to use HTTPS to connect to WinRM",
 			},
-                        "usessh": &schema.Schema{
-                                Type:        schema.TypeString,
-                                Optional:    true,
-                                DefaultFunc: schema.EnvDefaultFunc("USESSH", false),
-                                Description: "Whether or not to use SSH to connect to WinRM",
-                        },
+			"usessh": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("USESSH", false),
+				Description: "Whether or not to use SSH to connect to WinRM",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"windns": resourceWinDNSRecord(),
@@ -59,12 +58,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, fmt.Errorf("The 'username' property was not specified.")
 	}
 
-        usessh := d.Get("usessh").(string)
+	usessh := d.Get("usessh").(string)
 
-        password := d.Get("password").(string)
-        if password == "" && usessh == "0" {
-                return nil, fmt.Errorf("The 'password' property was not specified and usessh was false.")
-        }
+	password := d.Get("password").(string)
+	if password == "" && usessh == "0" {
+		return nil, fmt.Errorf("The 'password' property was not specified and usessh was false.")
+	}
 
 	server := d.Get("server").(string)
 	if server == "" {
@@ -78,23 +77,23 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	err = f.Close()
 	err = os.Remove(f.Name())
 
-	client := DNSClient {
-		username:	username,
-		password:	password,
-		server:		server,
-		usessl:		usessl,
-		usessh:     usessh,
-		lockfile:   lockfile,
+	client := DNSClient{
+		username: username,
+		password: password,
+		server:   server,
+		usessl:   usessl,
+		usessh:   usessh,
+		lockfile: lockfile,
 	}
 
 	return &client, err
 }
 
 type DNSClient struct {
-	username	string
-	password	string
-	server		string
-	usessl		string
-	usessh      string
-	lockfile	string
+	username string
+	password string
+	server   string
+	usessl   string
+	usessh   string
+	lockfile string
 }

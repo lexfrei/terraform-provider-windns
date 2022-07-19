@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hashicorp/terraform/plugin"
-	"github.com/portofportland/terraform-provider-windns/windns"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+	"github.com/lexfrei/terraform-provider-windns/windns"
 )
 
 func main() {
